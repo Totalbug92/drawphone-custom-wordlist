@@ -41,6 +41,7 @@ class Game {
         this.botCount = 0;
         this.currentRoundNum = 1;
         this.timeOfLastAction = new Date();
+        this.customWordList = [];
 
         setTimeout(() => this.deleteGameIfEmpty(), 60 * 1000);
     }
@@ -236,6 +237,10 @@ class Game {
         });
     }
 
+    updateCustomWordList(wordList) {
+        this.customWordList = wordList;
+    }
+
     startNewRound(timeLimit, wordPackName, showNeighbors, turnLimit) {
         this.inProgress = true;
         this.currentRound = new Round(
@@ -250,7 +255,8 @@ class Game {
                 this.inProgress = false;
                 this.sendUpdatedPlayersList(); //this makes sure the View Last Round Results button shows up
                 this.timeOfLastAction = new Date();
-            }
+            },
+            this.customWordList
         );
 
         this.currentRound.start();

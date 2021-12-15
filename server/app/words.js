@@ -19,6 +19,7 @@ const PACK_NAMES = [
     "Animals",
     "Adjectives",
     "Verbs",
+    "...Create your own!",
 ];
 
 class WordPacks {
@@ -30,31 +31,33 @@ class WordPacks {
         //reads each txt file in the words folder
         //the name of the file will be the name of the pack
         PACK_NAMES.forEach((packName) => {
-            var pathToTxt = __dirname + "/../words/" + packName + ".txt";
-            let arrayOfWords = fs
-                .readFileSync(pathToTxt)
-                .toString()
-                .split(/\r?\n/);
+            if (packName !== "...Create your own!") {
+                var pathToTxt = __dirname + "/../words/" + packName + ".txt";
+                let arrayOfWords = fs
+                    .readFileSync(pathToTxt)
+                    .toString()
+                    .split(/\r?\n/);
 
-            //remove all blank lines
-            const newArrayOfWords = [];
-            for (let i = 0; i < arrayOfWords.length; i++) {
-                const thisWord = arrayOfWords[i].trim();
-                if (thisWord !== "") {
-                    newArrayOfWords.push(thisWord);
+                //remove all blank lines
+                const newArrayOfWords = [];
+                for (let i = 0; i < arrayOfWords.length; i++) {
+                    const thisWord = arrayOfWords[i].trim();
+                    if (thisWord !== "") {
+                        newArrayOfWords.push(thisWord);
+                    }
                 }
-            }
-            arrayOfWords = newArrayOfWords;
+                arrayOfWords = newArrayOfWords;
 
-            //can't have an empty list!
-            if (arrayOfWords.length === 0) {
-                console.log(
-                    `${packName}.txt is empty. Please add some words, or delete it.`
-                );
-                process.exit(1);
-            }
+                //can't have an empty list!
+                if (arrayOfWords.length === 0) {
+                    console.log(
+                        `${packName}.txt is empty. Please add some words, or delete it.`
+                    );
+                    process.exit(1);
+                }
 
-            this.wordPacks.push(new WordPack(packName, arrayOfWords));
+                this.wordPacks.push(new WordPack(packName, arrayOfWords));
+            }
         });
     }
 

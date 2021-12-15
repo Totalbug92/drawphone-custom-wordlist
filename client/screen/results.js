@@ -2,7 +2,7 @@ import { addResultsToStorage } from "../archive.js";
 import { DRAWING, WORD, FIRST_WORD } from "../../shared/enums.js";
 import Screen from "./screen.js";
 
-/* global $, ga */
+/* global $ */
 
 class Results extends Screen {
     constructor(onDoneViewingResults) {
@@ -24,11 +24,7 @@ class Results extends Screen {
     show({ data }, isArchivePage) {
         this.socket.off("disconnect");
 
-        const { chains, roundTime } = data;
-
-        if (roundTime) {
-            ga("send", "event", "Results", "round time per player", roundTime);
-        }
+        const { chains } = data;
 
         this.render(chains[0], chains);
 
@@ -113,8 +109,6 @@ class Results extends Screen {
 
                     //jump to top of the page
                     window.scrollTo(0, 0);
-
-                    ga("send", "event", "Results", "display another chain");
                 });
             })(chain, chainsToList);
             others.append(button);

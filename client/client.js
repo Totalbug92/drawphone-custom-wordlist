@@ -28,15 +28,8 @@ $(() => {
 var socket = io({ autoConnect: false, reconnectionAttempts: 3 });
 
 //try to join the dev game
-const relativeUrl = window.location.pathname + window.location.search;
-
-if (relativeUrl === "/dev") {
-    socket.open();
-    socket.emit("joinGame", {
-        code: "ffff",
-        name: Math.random().toString().substring(2, 6),
-    });
-}
+let relativeUrl = window.location.pathname + window.location.search;
+relativeUrl = relativeUrl.substring(1);
 
 const urlParams = new URLSearchParams(window.location.search);
 const isRocketcrab = urlParams.get("rocketcrab") === "true";
@@ -61,6 +54,31 @@ drawphone.begin();
 if (relativeUrl === "/archive") {
     renderArchive(drawphone);
 }
+$(document).ready(() => {
+    let joinBtn = $("#joinButton");
+    let startBtn = $("#startButton");
+    let gameCode = $("#gameCodeInput");
+    let playerName = $("#gameNameInput");
+
+    joinBtn.on("click", () => {
+        if (gameCode.val() && playerName.val()) {
+            socket.open();
+            socket.emit("joinGame", {
+                code: gameCode.val(),
+                name: playerName.val(),
+            });
+        } else
+            window.alert(
+                "you must input both a name and a game room to join a party"
+            );
+    });
+    startBtn.on("click", () => {
+        if (playerName.val()) {
+            socket.open();
+            socket.emit("newGame", { name: playerName.val() });
+        } else window.alert("you must input a name to start a party");
+    });
+});
 
 socket.on("makeAIGuess", ({ data: drawingToGuess }) => {
     const image = new Image();

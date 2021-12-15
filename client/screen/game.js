@@ -5,7 +5,7 @@ import { startTimer, showElement } from "../util.js";
 import { getDrawingCanvas } from "../canvas.js";
 import { HIDDEN, DRAWING, WORD, FIRST_WORD } from "../../shared/enums.js";
 
-/* global $, ga */
+/* global $*/
 
 class Game extends Screen {
     constructor(onWait) {
@@ -58,13 +58,6 @@ class Game extends Screen {
                     this.canvas.isBlank = false;
                     //submit
                     this.onDone();
-                    ga(
-                        "send",
-                        "event",
-                        "Drawing",
-                        "timer forced submit",
-                        this.timeLimit
-                    );
                 }, this.timeLimit * 1000);
             }
             this.canvas.isBlank = false;
@@ -282,7 +275,6 @@ class Game extends Screen {
                 data,
             },
         });
-        ga("send", "event", "Link", "submit", type);
         this.onWait();
     }
 

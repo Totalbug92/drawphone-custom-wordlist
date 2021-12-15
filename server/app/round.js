@@ -77,7 +77,8 @@ class Round {
         wordPackName,
         showNeighbors,
         turnLimit,
-        onResults
+        onResults,
+        userWords
     ) {
         this.number = number;
         this.players = players;
@@ -93,7 +94,7 @@ class Round {
         this.canViewLastRoundResults = false;
         this.isWordFirstGame = !this.wordPackName;
         this.turnLimit = this.validTurnLimit(turnLimit);
-
+        this.userWords = userWords;
         this.startTime;
 
         if (this.isWordFirstGame) {
@@ -104,11 +105,17 @@ class Round {
         }
 
         this.finalNumOfLinks;
-        this.aiGuessQueue = new AIGuessQueue(() =>
-            words.getRandomWord(
-                this.wordPackName || "Simple words (recommended)"
-            )
-        );
+        this.aiGuessQueue = new AIGuessQueue(() => {
+            if (this.userWords !== undefined) {
+                return this.userWords[
+                    Math.floor(Math.random() * this.userWords.length)
+                ];
+            } else {
+                return words.getRandomWord(
+                    this.wordPackName || "Simple words (recommended)"
+                );
+            }
+        });
     }
 
     start() {
@@ -169,7 +176,11 @@ class Round {
             if (player.isAi) player.setAIGuessQueue(this.aiGuessQueue);
 
             //give each player a chain of their own
-            const wordToDraw = words.getRandomWord(this.wordPackName);
+            const wordToDraw = this.userWords
+                ? this.userWords[
+                      Math.floor(Math.random() * this.userWords.length)
+                  ]
+                : words.getRandomWord(this.wordPackName);
             const thisChain = new Chain(
                 wordToDraw,
                 player,

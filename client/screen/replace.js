@@ -1,6 +1,6 @@
 import Screen from "./screen.js";
 
-/* global $, ga */
+/* global $ */
 
 class Replace extends Screen {
     constructor() {
@@ -51,7 +51,6 @@ class Replace extends Screen {
         this.socket.emit("tryReplacePlayer", {
             playerToReplace,
         });
-        ga("send", "event", "Player replacement", "replace", this.timeLimit);
     }
 }
 

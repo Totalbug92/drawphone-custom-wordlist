@@ -17,6 +17,7 @@ export default ({ drawphone, io }) => {
             });
 
         safeSon("joinGame", ({ code, name }) => {
+            console.log("c", code, "n", name);
             thisGame = dp.findGame(code);
             const theName = stripTags(name);
             if (!thisGame) {
@@ -138,6 +139,13 @@ export default ({ drawphone, io }) => {
                 thisRound.replacePlayer(oldPlayer.id, botPlayer);
                 thisRound.updateWaitingList();
                 thisRound.nextLinkIfEveryoneIsDone();
+            }
+        });
+        safeSon("hostUpdateCustomWordlist", (wordList) => {
+            if (!thisGame || !thisUser) return;
+
+            if (thisUser.isHost) {
+                thisGame.updateCustomWordList(wordList.value);
             }
         });
 

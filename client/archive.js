@@ -1,6 +1,6 @@
 import Dexie from "dexie";
 
-/* global $, ga */
+/* global $ */
 
 export async function renderArchive(drawphone) {
     const archive = $("#archive");
@@ -60,8 +60,6 @@ export async function renderArchive(drawphone) {
 
                 //jump to top of the page
                 window.scrollTo(0, 0);
-
-                ga("send", "event", "Archive", "display another chain");
             });
         })(results.chains);
         archiveContent.append(button);

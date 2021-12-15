@@ -5,7 +5,7 @@ import { getNewTurnLimit } from "../../shared/util.js";
 import Screen from "./screen.js";
 import UserList from "../userlist.js";
 
-/* global $, ga */
+/* global $ */
 
 class Lobby extends Screen {
     constructor() {
@@ -29,6 +29,9 @@ class Lobby extends Screen {
         this.addBotButton = $("#lobby-settings-addbot");
         this.removeBotButton = $("#lobby-settings-removebot");
         this.viewPreviousResultsButton = $("#lobby-prevres");
+        this.userWordpackWrapper = $("#lobby-settings-userWordpackWrapper");
+        this.userWordpack = $("#lobby-settings-userWordpack");
+        this.joinBtn = $("#joinButton");
         this.gameCode = "";
 
         //these is what the host selects from the Options
@@ -44,15 +47,12 @@ class Lobby extends Screen {
         super.initialize(props);
 
         this.leaveButton.click(() => {
-            ga("send", "event", "Lobby", "leave");
             //refresh the page
             location.reload();
         });
 
         this.viewPreviousResultsButton.click(() => {
             this.socket.emit("viewPreviousResults", {});
-
-            ga("send", "event", "Lobby", "view previous results");
         });
 
         this.wordFirstCheckbox.prop("checked", false);
@@ -62,8 +62,7 @@ class Lobby extends Screen {
         this.gameTimeDisplay.text("");
         this.wordPackDropdown.prop("selectedIndex", 0);
         this.wordPackDropdown.prop("disabled", false);
-
-        ga("send", "event", "Lobby", "created");
+        this.userWordpackWrapper.hide();
     }
 
     show(data) {
@@ -83,10 +82,7 @@ class Lobby extends Screen {
 
         const onActualDisconnect = () => {
             swal("Connection lost!", "Reloading...", "error");
-            ga("send", "exception", {
-                exDescription: "Socket connection lost",
-                exFatal: false,
-            });
+
             //refresh the page
             location.reload();
         };
@@ -107,11 +103,6 @@ class Lobby extends Screen {
                     },
                 });
             } else {
-                ga("send", "exception", {
-                    exDescription: data.error,
-                    exFatal: false,
-                });
-
                 if (data.content) {
                     swal({
                         title: data.error,
@@ -134,10 +125,6 @@ class Lobby extends Screen {
 
     update(res) {
         if (!res.success) {
-            ga("send", "exception", {
-                exDescription: res.error,
-                exFatal: false,
-            });
             swal("Error updating lobby", res.error, "error");
 
             return;
@@ -226,6 +213,7 @@ class Lobby extends Screen {
         this.turnLimitMinus.off("click");
         this.turnLimitPlus.off("click");
         this.wordPackDropdown.off("change");
+        this.userWordpack.off("change");
         this.addBotButton.off("click");
         this.removeBotButton.off("click");
     }
@@ -256,7 +244,6 @@ class Lobby extends Screen {
                     "Make sure have selected a word pack, a drawing time limit, and that you have at least four players.",
                     "error"
                 );
-                ga("send", "event", "Lobby", "disallowed start attempt");
             }
         });
 
@@ -333,6 +320,7 @@ class Lobby extends Screen {
                 value: this.wordFirstCheckbox.is(":checked"),
             });
         });
+
         onWordFirstChange();
 
         this.showNeighborsCheckbox.on("change", () => {
@@ -343,7 +331,6 @@ class Lobby extends Screen {
             });
 
             this.checkIfReadyToStart();
-            ga("send", "event", "Lobby", "show neighbors", this.showNeighbors);
         });
 
         const changeTimeLimit = (modifier) => {
@@ -383,15 +370,28 @@ class Lobby extends Screen {
         };
 
         this.wordPackDropdown.on("change", () => {
-            onWordPackDropdownChange();
-            this.socket.emit("hostUpdatedSettings", {
-                name: "wordpack",
-                value: this.wordPackDropdown[0].value,
-            });
-
-            ga("send", "event", "Lobby", "word pack change", this.wordPack);
+            if (this.wordPackDropdown[0].value !== "...Create your own!") {
+                this.userWordpackWrapper.hide();
+                onWordPackDropdownChange();
+                this.socket.emit("hostUpdatedSettings", {
+                    name: "wordpack",
+                    value: this.wordPackDropdown[0].value,
+                });
+            } else {
+                this.userWordpackWrapper.show();
+                this.socket.emit("hostUpdatedSettings", {
+                    name: "wordpack",
+                    value: this.wordPackDropdown[0].value,
+                });
+            }
         });
         onWordPackDropdownChange();
+        this.userWordpack.on("change", () => {
+            this.socket.emit("hostUpdateCustomWordlist", {
+                name: "userWordpack",
+                value: this.userWordpack.val().split("\n"),
+            });
+        });
 
         this.addBotButton.on("click", () => {
             swal(
@@ -432,25 +432,6 @@ class Lobby extends Screen {
             showNeighbors: this.showNeighbors,
             turnLimit: this.selectedTurnLimit,
         });
-        ga("send", "event", "Game", "start");
-        ga("send", "event", "Game", "time limit", this.selectedTimeLimit);
-        ga("send", "event", "Game", "turn limit", this.selectedTurnLimit);
-        ga("send", "event", "Game", "word pack", this.wordPack);
-        ga(
-            "send",
-            "event",
-            "Game",
-            "number of players",
-            this.userList.realPlayers
-        );
-        ga("send", "event", "Game", "number of bots", this.userList.botPlayers);
-        ga(
-            "send",
-            "event",
-            "Game",
-            "number of total players",
-            this.userList.numberOfPlayers
-        );
     }
 }
 
